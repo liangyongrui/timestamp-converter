@@ -38,7 +38,7 @@ jobs:
         run: |
           git checkout gh-pages
           git remote set-url origin git@github.com:liangyongrui/timestamp-converter.git
-          cp -R build/* .
+          cp -R -f build/* .
       
       - name: push
         run: |
