@@ -31,6 +31,7 @@ jobs:
 
       - name: build
         run: |
+          npm install
           npm run build
 
       - name: check out page
