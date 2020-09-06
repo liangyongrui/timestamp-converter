@@ -35,16 +35,11 @@ jobs:
 
       - name: check out page
         run: |
-          git clone -b gh-pages git@github.com:liangyongrui/timestamp-converter.git
-
-      - name: clean and copy
-        run: |
-          rm -rf thain/*
-          cp -R -f {build,img,zh-cn,en-us,index.html,404.html} thain
+          git checkout gh-pages
+          cp -R -f {build} .
       
       - name: push
         run: |
-          cd thain
           git add .
-          git commit -am 'update doc'
+          git commit -am 'update'
           git push -f
