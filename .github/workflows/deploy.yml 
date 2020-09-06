@@ -31,7 +31,7 @@ jobs:
 
       - name: build
         run: |
-          yarn build
+          npm build
 
       - name: check out page
         run: |
