@@ -1,7 +1,8 @@
 import "./App.less";
 import React from "react";
-import { Table, Space, notification } from "antd";
+import { Table, Space, Button } from "antd";
 import Item from "./model";
+import { copy } from "./utils";
 
 function getMonthLast(date: Date) {
   let year = date.getFullYear();
@@ -23,7 +24,7 @@ export function getSuggestItems(text: string) {
   const raw = new Date(text);
   const value = text.split("").filter((t) => t >= "0" && t <= "9");
   const now = new Date();
-  if (value.length == 4) {
+  if (value.length === 4) {
     // 月 日
     const s =
       now.getFullYear() + "-" + value[0] + value[1] + "-" + value[2] + value[3];
@@ -35,8 +36,7 @@ export function getSuggestItems(text: string) {
   }
   if (isNaN(raw.getTime()) || raw.getTime() < 0) {
     const value = text.split("").filter((t) => t >= "0" && t <= "9");
-    const now = new Date();
-    if (value.length == 6) {
+    if (value.length === 6) {
       // 年月
       const d = new Date(
         value[0] + value[1] + value[2] + value[3] + "-" + value[4] + value[5]
@@ -46,7 +46,7 @@ export function getSuggestItems(text: string) {
         res.push(d);
       }
     }
-    if (value.length == 8) {
+    if (value.length === 8) {
       // 年月日
       const s =
         value[0] +
@@ -65,7 +65,7 @@ export function getSuggestItems(text: string) {
         res.push(d);
       }
     }
-    if (value.length == 9) {
+    if (value.length === 9) {
       // 年 月 日 小时
       const s =
         value[0] +
@@ -86,7 +86,7 @@ export function getSuggestItems(text: string) {
         res.push(d);
       }
     }
-    if (value.length == 10) {
+    if (value.length === 10) {
       // 年 月 日 小时
       const s =
         value[0] +
@@ -108,7 +108,7 @@ export function getSuggestItems(text: string) {
         res.push(d);
       }
     }
-    if (value.length == 11) {
+    if (value.length === 11) {
       // 年 月 日 小时
       const s =
         value[0] +
@@ -131,7 +131,7 @@ export function getSuggestItems(text: string) {
         res.push(d);
       }
     }
-    if (value.length == 12) {
+    if (value.length === 12) {
       // 年 月 日 小时
       const s =
         value[0] +
@@ -189,30 +189,6 @@ export function getSuggestItems(text: string) {
   }));
 }
 
-function copy(x: number | string) {
-  var copyDOM = document.querySelector(".id" + x);
-  if (copyDOM == null) {
-    notification["error"]({
-      message: "复制失败，请手动复制！",
-    });
-    return;
-  }
-  var range = document.createRange(); //创建一个range
-  window.getSelection()?.removeAllRanges(); //清楚页面中已有的selection
-  range.selectNode(copyDOM); // 选中需要复制的节点
-  window.getSelection()?.addRange(range); // 执行选中元素
-  var successful = document.execCommand("copy"); // 执行 copy 操作
-  if (successful) {
-    notification["success"]({
-      message: "复制成功",
-    });
-  } else {
-    notification["error"]({
-      message: "复制失败，请手动复制！",
-    });
-  }
-}
-
 const columns = [
   {
     title: "日期时间",
@@ -224,9 +200,9 @@ const columns = [
         .replaceAll(":", "")
         .replaceAll("/", "");
       return (
-        <a className={`id${trim}`} onClick={() => copy(trim)}>
+        <Button type="link" className={`id${trim}`} onClick={() => copy(trim)}>
           {text}
-        </a>
+        </Button>
       );
     },
   },
@@ -235,9 +211,9 @@ const columns = [
     dataIndex: "key",
     key: "key",
     render: (text: number) => (
-      <a className={`id${text}`} onClick={() => copy(text)}>
+      <Button type="link" className={`id${text}`} onClick={() => copy(text)}>
         {text}
-      </a>
+      </Button>
     ),
   },
   {
@@ -247,7 +223,9 @@ const columns = [
     render: (action: (n: number) => void, all: any) => {
       return (
         <Space size="middle">
-          <a onClick={() => action(all.key)}>保存</a>
+          <Button type="link" href="#" onClick={() => action(all.key)}>
+            保存
+          </Button>
         </Space>
       );
     },

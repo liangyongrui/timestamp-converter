@@ -1,20 +1,35 @@
 import "./App.less";
 import React from "react";
-import { Table, Space } from "antd";
+import { Table, Space, Button } from "antd";
 import Item from "./model";
+import { copy } from "./utils";
 
 const columns = [
   {
     title: "日期时间",
     dataIndex: "dateTime",
     key: "dateTime",
-    render: (text: string) => <a>{text}</a>,
+    render: (text: string) => {
+      const trim = text
+        .replaceAll(" ", "")
+        .replaceAll(":", "")
+        .replaceAll("/", "");
+      return (
+        <Button type="link" className={`id${trim}`} onClick={() => copy(trim)}>
+          {text}
+        </Button>
+      );
+    },
   },
   {
     title: "时间戳",
     dataIndex: "key",
     key: "key",
-    render: (text: number) => <a>{text}</a>,
+    render: (text: number) => (
+      <Button type="link" className={`id${text}`} onClick={() => copy(text)}>
+        {text}
+      </Button>
+    ),
   },
   {
     title: "Action",
@@ -28,8 +43,12 @@ const columns = [
       all: any
     ) => (
       <Space size="middle">
-        <a onClick={() => top(all.key)}>置顶</a>
-        <a onClick={() => remove(all.key)}>删除</a>
+        <Button type="link" onClick={() => top(all.key)}>
+          置顶
+        </Button>
+        <Button type="link" onClick={() => remove(all.key)}>
+          删除
+        </Button>
       </Space>
     ),
   },

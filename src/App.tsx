@@ -23,9 +23,6 @@ function App() {
 
   useEffect(() => {
     setStorageItems(parseItems(localStorage.getItem(storageKey) ?? "[]"));
-    return () => {
-      localStorage.setItem(storageKey, stringifyItems(storageItems));
-    };
   }, []);
 
   useEffect(() => {
