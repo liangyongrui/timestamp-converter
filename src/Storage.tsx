@@ -1,8 +1,10 @@
 import "./App.less";
 import React from "react";
-import { Table, Space, Button } from "antd";
+import { Table, Space, Button, Input } from "antd";
 import Item from "./model";
 import { copy } from "./utils";
+
+const prefix = "storage";
 
 const columns = [
   {
@@ -15,9 +17,13 @@ const columns = [
         .replaceAll(":", "")
         .replaceAll("/", "");
       return (
-        <Button type="link" className={`id${trim}`} onClick={() => copy(trim)}>
-          {text}
-        </Button>
+        <Input
+          onClick={(e) => copy(e, trim, prefix)}
+          className={`${prefix}${trim}`}
+          bordered={false}
+          value={text}
+          readOnly
+        />
       );
     },
   },
@@ -26,9 +32,13 @@ const columns = [
     dataIndex: "key",
     key: "key",
     render: (text: number) => (
-      <Button type="link" className={`id${text}`} onClick={() => copy(text)}>
-        {text}
-      </Button>
+      <Input
+        onClick={(e) => copy(e, text, prefix)}
+        className={`${prefix}${text}`}
+        bordered={false}
+        value={text}
+        readOnly
+      />
     ),
   },
   {
@@ -66,8 +76,8 @@ function Storage({
   const data = storageItems
     .map((t) => t.date)
     .map((t) => ({
-      key: t.getTime(),
-      dateTime: t.toLocaleString("chinese", { hour12: false }),
+      key: t.valueOf(),
+      dateTime: t.format("YYYY-MM-DD HH:mm:ss"),
       action: { top, remove },
     }));
   return (

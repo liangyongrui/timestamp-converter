@@ -1,19 +1,9 @@
 import "./App.less";
 import React from "react";
-import { Table, Space, Button } from "antd";
+import { Table, Space, Button, Input } from "antd";
 import Item from "./model";
 import { copy } from "./utils";
-
-function getMonthLast(date: Date) {
-  let year = date.getFullYear();
-  let month = date.getMonth() + 2;
-  if (month > 12) {
-    year += 1;
-    month = 1;
-  }
-  const newDate = new Date(year, month - 1, 1);
-  return new Date(newDate.getTime() - 1000 * 60 * 60 * 24);
-}
+import dayjs from "dayjs";
 
 /**
  * 获取建议日期
@@ -21,29 +11,27 @@ function getMonthLast(date: Date) {
 export function getSuggestItems(text: string) {
   const res = [];
 
-  const raw = new Date(text);
+  const raw = dayjs(text);
   const value = text.split("").filter((t) => t >= "0" && t <= "9");
-  const now = new Date();
+  const now = dayjs();
   if (value.length === 4) {
     // 月 日
     const s =
-      now.getFullYear() + "-" + value[0] + value[1] + "-" + value[2] + value[3];
-    const d = new Date(s);
-    if (!isNaN(d.getTime())) {
-      d.setHours(0, 0, 0, 0);
-      res.push(d);
+      now.year() + "-" + value[0] + value[1] + "-" + value[2] + value[3];
+    const d = dayjs(s);
+    if (!isNaN(d.valueOf())) {
+      res.push(d.startOf("day"));
     }
   }
-  if (isNaN(raw.getTime()) || raw.getTime() < 0) {
+  if (isNaN(raw.valueOf()) || raw.valueOf() < 0) {
     const value = text.split("").filter((t) => t >= "0" && t <= "9");
     if (value.length === 6) {
       // 年月
-      const d = new Date(
+      const d = dayjs(
         value[0] + value[1] + value[2] + value[3] + "-" + value[4] + value[5]
       );
-      if (!isNaN(d.getTime())) {
-        d.setHours(0, 0, 0, 0);
-        res.push(d);
+      if (!isNaN(d.valueOf())) {
+        res.push(d.startOf("day"));
       }
     }
     if (value.length === 8) {
@@ -59,10 +47,9 @@ export function getSuggestItems(text: string) {
         "-" +
         value[6] +
         value[7];
-      const d = new Date(s);
-      if (!isNaN(d.getTime())) {
-        d.setHours(0, 0, 0, 0);
-        res.push(d);
+      const d = dayjs(s);
+      if (!isNaN(d.valueOf())) {
+        res.push(d.startOf("day"));
       }
     }
     if (value.length === 9) {
@@ -81,8 +68,8 @@ export function getSuggestItems(text: string) {
         " 0" +
         value[8] +
         ":00";
-      const d = new Date(s);
-      if (!isNaN(d.getTime())) {
+      const d = dayjs(s);
+      if (!isNaN(d.valueOf())) {
         res.push(d);
       }
     }
@@ -103,8 +90,8 @@ export function getSuggestItems(text: string) {
         value[8] +
         value[9] +
         ":00";
-      const d = new Date(s);
-      if (!isNaN(d.getTime())) {
+      const d = dayjs(s);
+      if (!isNaN(d.valueOf())) {
         res.push(d);
       }
     }
@@ -126,8 +113,8 @@ export function getSuggestItems(text: string) {
         value[9] +
         ":0" +
         value[10];
-      const d = new Date(s);
-      if (!isNaN(d.getTime())) {
+      const d = dayjs(s);
+      if (!isNaN(d.valueOf())) {
         res.push(d);
       }
     }
@@ -150,45 +137,41 @@ export function getSuggestItems(text: string) {
         ":" +
         value[10] +
         value[11];
-      const d = new Date(s);
-      if (!isNaN(d.getTime())) {
+      const d = dayjs(s);
+      if (!isNaN(d.valueOf())) {
         res.push(d);
       }
     }
   } else {
     res.push(raw);
   }
-  const rawUt = new Date(parseInt(text));
-  if (!isNaN(rawUt.getTime())) {
+  const rawUt = dayjs(parseInt(text));
+  if (!isNaN(rawUt.valueOf())) {
     res.push(rawUt);
   }
   // 今天开始
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  const todayStart = dayjs().startOf("day");
   res.push(todayStart);
 
   // 今天结束
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
+  const todayEnd = dayjs().endOf("day");
   res.push(todayEnd);
 
   // 本月开始
-  const thisMonthStart = new Date();
-  thisMonthStart.setDate(1);
-  thisMonthStart.setHours(0, 0, 0, 0);
+  const thisMonthStart = dayjs().startOf("month");
   res.push(thisMonthStart);
 
   // 本月结束
-  res.push(getMonthLast(new Date()));
+  res.push(dayjs().endOf("month"));
 
   // now
-  res.push(new Date());
+  res.push(dayjs());
 
   return res.map((t) => ({
     date: t,
   }));
 }
-
+const prefix = "suggest";
 const columns = [
   {
     title: "日期时间",
@@ -200,9 +183,13 @@ const columns = [
         .replaceAll(":", "")
         .replaceAll("/", "");
       return (
-        <Button type="link" className={`id${trim}`} onClick={() => copy(trim)}>
-          {text}
-        </Button>
+        <Input
+          onClick={(e) => copy(e, trim, prefix)}
+          className={`${prefix}${trim}`}
+          bordered={false}
+          value={text}
+          readOnly
+        />
       );
     },
   },
@@ -211,9 +198,13 @@ const columns = [
     dataIndex: "key",
     key: "key",
     render: (text: number) => (
-      <Button type="link" className={`id${text}`} onClick={() => copy(text)}>
-        {text}
-      </Button>
+      <Input
+        onClick={(e) => copy(e, text, prefix)}
+        className={`${prefix}${text}`}
+        bordered={false}
+        value={text}
+        readOnly
+      />
     ),
   },
   {
@@ -242,8 +233,8 @@ export default function Suggest({
   const data = suggests
     .map((t) => t.date)
     .map((t) => ({
-      key: t.getTime(),
-      dateTime: t.toLocaleString("chinese", { hour12: false }),
+      key: t.valueOf(),
+      dateTime: t.format("YYYY-MM-DD HH:mm:ss"),
       action: save,
     }));
   return (

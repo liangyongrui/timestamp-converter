@@ -5,6 +5,7 @@ import Item, { parseItems, stringifyItems } from "./model";
 import Suggest, { getSuggestItems } from "./Suggest";
 import UtStorage from "./Storage";
 import { newSetArray, removeThenNewSetArray } from "./utils";
+import dayjs from "dayjs";
 
 const storageKey = "the_world's_best_time-stamp_conversion_website_key";
 
@@ -31,13 +32,13 @@ function App() {
 
   function save(n: number) {
     setStorageItems((x) => {
-      return newSetArray(x, { date: new Date(n) });
+      return newSetArray(x, { date: dayjs(n) });
     });
   }
 
   function remove(n: number) {
     setStorageItems((x) => {
-      return removeThenNewSetArray(x, { date: new Date(n) });
+      return removeThenNewSetArray(x, { date: dayjs(n) });
     });
   }
   return (
