@@ -1,6 +1,18 @@
 import Item from "./model";
 import { notification } from "antd";
 
+export function unique(xs: Item[]) {
+  const arr: Item[] = [];
+  const s = new Set();
+  xs.forEach((x) => {
+    if (!s.has(x.date.valueOf())) {
+      arr.push(x);
+      s.add(x.date.valueOf());
+    }
+  });
+  return arr;
+}
+
 export function removeThenNewSetArray(x: Item[], n: Item) {
   const arr = [...x];
   arr.splice(
@@ -37,12 +49,11 @@ export function copy(
     });
     return;
   }
-  window.getSelection()?.removeAllRanges(); //清楚页面中已有的selection
-  var range = document.createRange(); //创建一个range
-  range.selectNode(copyDOM); // 选中需要复制的节点
-  window.getSelection()?.addRange(range); // 执行选中元素
-  console.log(range, copyDOM);
-  var successful = document.execCommand("copy"); // 执行 copy 操作
+  window.getSelection()?.removeAllRanges();
+  var range = document.createRange();
+  range.selectNode(copyDOM);
+  window.getSelection()?.addRange(range);
+  var successful = document.execCommand("copy");
   if (successful) {
     notification["success"]({
       message: "复制成功",

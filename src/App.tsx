@@ -17,9 +17,7 @@ function App() {
   const [suggestItems, setSuggestItems] = useState<Item[]>([]);
 
   useEffect(() => {
-    (async function () {
-      setSuggestItems(getSuggestItems(inputValue));
-    })();
+    setSuggestItems(getSuggestItems(inputValue));
   }, [inputValue]);
 
   useEffect(() => {
@@ -51,14 +49,15 @@ function App() {
         placeholder="在这输入你想要输入的内容，无需拘泥于格式"
         bordered={false}
         value={inputValue}
-        onChange={(e) => setInputValue(e.currentTarget.value)}
+        onChange={(e) => setInputValue(e.currentTarget.value ?? "")}
       />
       <Divider />
       <p>猜你想要</p>
-      <Suggest save={save} suggests={suggestItems} />
+      <Suggest save={save} suggests={suggestItems} highlightText={inputValue} />
       <Divider />
       <p>Storage</p>
       <UtStorage top={save} remove={remove} storageItems={storageItems} />
+      <div style={{ height: "200px" }} />
     </div>
   );
 }

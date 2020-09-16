@@ -2,16 +2,11 @@ import "./App.less";
 import React from "react";
 import { Table, Space, Button, Input } from "antd";
 import Item from "./model";
-import { copy } from "./utils";
+import { copy, unique } from "./utils";
 import dayjs from "dayjs";
 
-/**
- * 获取建议日期
- */
-export function getSuggestItems(text: string) {
+function tryParse(text: string) {
   const res = [];
-
-  const raw = dayjs(text);
   const value = text.split("").filter((t) => t >= "0" && t <= "9");
   const now = dayjs();
   if (value.length === 4) {
@@ -19,136 +14,149 @@ export function getSuggestItems(text: string) {
     const s =
       now.year() + "-" + value[0] + value[1] + "-" + value[2] + value[3];
     const d = dayjs(s);
-    if (!isNaN(d.valueOf())) {
+    if (d.isValid()) {
       res.push(d.startOf("day"));
     }
   }
-  if (isNaN(raw.valueOf()) || raw.valueOf() < 0) {
-    const value = text.split("").filter((t) => t >= "0" && t <= "9");
-    if (value.length === 6) {
-      // 年月
-      const d = dayjs(
-        value[0] + value[1] + value[2] + value[3] + "-" + value[4] + value[5]
-      );
-      if (!isNaN(d.valueOf())) {
-        res.push(d.startOf("day"));
+  if (value.length === 6) {
+    // 年月
+    const d = dayjs(
+      value[0] + value[1] + value[2] + value[3] + "-" + value[4] + value[5]
+    );
+    if (d.isValid()) {
+      res.push(d.startOf("day"));
+    }
+  }
+  if (value.length === 8) {
+    // 年月日
+    const s =
+      value[0] +
+      value[1] +
+      value[2] +
+      value[3] +
+      "-" +
+      value[4] +
+      value[5] +
+      "-" +
+      value[6] +
+      value[7];
+    const d = dayjs(s);
+    if (d.isValid()) {
+      res.push(d.startOf("day"));
+    }
+  }
+  if (value.length === 9) {
+    // 年 月 日 小时
+    const s =
+      value[0] +
+      value[1] +
+      value[2] +
+      value[3] +
+      "-" +
+      value[4] +
+      value[5] +
+      "-" +
+      value[6] +
+      value[7] +
+      " 0" +
+      value[8] +
+      ":00";
+    const d = dayjs(s);
+    if (d.isValid()) {
+      res.push(d);
+    }
+  }
+  if (value.length === 10) {
+    // 年 月 日 小时
+    const s =
+      value[0] +
+      value[1] +
+      value[2] +
+      value[3] +
+      "-" +
+      value[4] +
+      value[5] +
+      "-" +
+      value[6] +
+      value[7] +
+      " " +
+      value[8] +
+      value[9] +
+      ":00";
+    const d = dayjs(s);
+    if (d.isValid()) {
+      res.push(d);
+    }
+  }
+  if (value.length === 11) {
+    // 年 月 日 小时
+    const s =
+      value[0] +
+      value[1] +
+      value[2] +
+      value[3] +
+      "-" +
+      value[4] +
+      value[5] +
+      "-" +
+      value[6] +
+      value[7] +
+      " " +
+      value[8] +
+      value[9] +
+      ":0" +
+      value[10];
+    const d = dayjs(s);
+    if (d.isValid()) {
+      res.push(d);
+    }
+  }
+  if (value.length === 12) {
+    // 年 月 日 小时
+    const s =
+      value[0] +
+      value[1] +
+      value[2] +
+      value[3] +
+      "-" +
+      value[4] +
+      value[5] +
+      "-" +
+      value[6] +
+      value[7] +
+      " " +
+      value[8] +
+      value[9] +
+      ":" +
+      value[10] +
+      value[11];
+    const d = dayjs(s);
+    if (d.isValid()) {
+      res.push(d);
+    }
+  }
+  return res;
+}
+
+/**
+ * 获取建议日期
+ */
+export function getSuggestItems(text: string) {
+  let res = [];
+  {
+    const n = parseInt(text);
+    if (n >= 1000000000 && n <= 2000000000000) {
+      const rawUt = dayjs(n);
+      if (rawUt.isValid()) {
+        res.push(rawUt);
       }
     }
-    if (value.length === 8) {
-      // 年月日
-      const s =
-        value[0] +
-        value[1] +
-        value[2] +
-        value[3] +
-        "-" +
-        value[4] +
-        value[5] +
-        "-" +
-        value[6] +
-        value[7];
-      const d = dayjs(s);
-      if (!isNaN(d.valueOf())) {
-        res.push(d.startOf("day"));
-      }
-    }
-    if (value.length === 9) {
-      // 年 月 日 小时
-      const s =
-        value[0] +
-        value[1] +
-        value[2] +
-        value[3] +
-        "-" +
-        value[4] +
-        value[5] +
-        "-" +
-        value[6] +
-        value[7] +
-        " 0" +
-        value[8] +
-        ":00";
-      const d = dayjs(s);
-      if (!isNaN(d.valueOf())) {
-        res.push(d);
-      }
-    }
-    if (value.length === 10) {
-      // 年 月 日 小时
-      const s =
-        value[0] +
-        value[1] +
-        value[2] +
-        value[3] +
-        "-" +
-        value[4] +
-        value[5] +
-        "-" +
-        value[6] +
-        value[7] +
-        " " +
-        value[8] +
-        value[9] +
-        ":00";
-      const d = dayjs(s);
-      if (!isNaN(d.valueOf())) {
-        res.push(d);
-      }
-    }
-    if (value.length === 11) {
-      // 年 月 日 小时
-      const s =
-        value[0] +
-        value[1] +
-        value[2] +
-        value[3] +
-        "-" +
-        value[4] +
-        value[5] +
-        "-" +
-        value[6] +
-        value[7] +
-        " " +
-        value[8] +
-        value[9] +
-        ":0" +
-        value[10];
-      const d = dayjs(s);
-      if (!isNaN(d.valueOf())) {
-        res.push(d);
-      }
-    }
-    if (value.length === 12) {
-      // 年 月 日 小时
-      const s =
-        value[0] +
-        value[1] +
-        value[2] +
-        value[3] +
-        "-" +
-        value[4] +
-        value[5] +
-        "-" +
-        value[6] +
-        value[7] +
-        " " +
-        value[8] +
-        value[9] +
-        ":" +
-        value[10] +
-        value[11];
-      const d = dayjs(s);
-      if (!isNaN(d.valueOf())) {
-        res.push(d);
-      }
-    }
-  } else {
+  }
+  const raw = dayjs(text);
+  if (raw.isValid()) {
     res.push(raw);
   }
-  const rawUt = dayjs(parseInt(text));
-  if (!isNaN(rawUt.valueOf())) {
-    res.push(rawUt);
-  }
+  res = res.concat(tryParse(text));
   // 今天开始
   const todayStart = dayjs().startOf("day");
   res.push(todayStart);
@@ -197,15 +205,24 @@ const columns = [
     title: "时间戳",
     dataIndex: "key",
     key: "key",
-    render: (text: number) => (
-      <Input
-        onClick={(e) => copy(e, text, prefix)}
-        className={`${prefix}${text}`}
-        bordered={false}
-        value={text}
-        readOnly
-      />
-    ),
+    render: (text: number, all: any) => {
+      let color;
+      if (parseInt(all.highlightText) === text) {
+        color = "rgba(255, 251, 0, 0.85)";
+      } else {
+        color = "rgba(255, 255, 255, 0.85)";
+      }
+      return (
+        <Input
+          onClick={(e) => copy(e, text, prefix)}
+          className={`${prefix}${text}`}
+          bordered={false}
+          style={{ color: color }}
+          value={text}
+          readOnly
+        />
+      );
+    },
   },
   {
     title: "Action",
@@ -225,16 +242,20 @@ const columns = [
 
 export default function Suggest({
   suggests,
+  highlightText,
   save,
 }: {
   suggests: Item[];
+  highlightText: string;
   save: (n: number) => void;
 }) {
-  const data = suggests
+  const data = unique(suggests)
     .map((t) => t.date)
+    .filter((t) => t.valueOf() >= 0)
     .map((t) => ({
       key: t.valueOf(),
       dateTime: t.format("YYYY-MM-DD HH:mm:ss"),
+      highlightText,
       action: save,
     }));
   return (
